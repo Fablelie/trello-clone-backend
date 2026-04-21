@@ -1,8 +1,7 @@
-package repository
+package postgres
 
 import (
 	"github.com/fablelie/trello-clone-backend/internal/domain"
-	my_postgres "github.com/fablelie/trello-clone-backend/internal/repository/postgres"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -18,7 +17,7 @@ func NewUserRepository(db *gorm.DB) domain.UserRepository {
 
 func (r *userRepo) Create(user *domain.User) error {
 	// Mapping: Convert Domain entity to DB Schema
-	schema := my_postgres.UserSchema{
+	schema := UserSchema{
 		ID:       user.ID,
 		Name:     user.Name,
 		Email:    user.Email,
@@ -37,7 +36,7 @@ func (r *userRepo) Create(user *domain.User) error {
 }
 
 func (r *userRepo) GetByEmail(email string) (*domain.User, error) {
-	var schema my_postgres.UserSchema
+	var schema UserSchema
 	if err := r.db.Where("email = ?", email).First(&schema).Error; err != nil {
 		return nil, err
 	}
@@ -53,7 +52,7 @@ func (r *userRepo) GetByEmail(email string) (*domain.User, error) {
 }
 
 func (r *userRepo) GetByID(id uuid.UUID) (*domain.User, error) {
-	var schema my_postgres.UserSchema
+	var schema UserSchema
 	if err := r.db.First(&schema, "id = ?", id).Error; err != nil {
 		return nil, err
 	}

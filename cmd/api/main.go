@@ -7,7 +7,7 @@ import (
 	"github.com/fablelie/trello-clone-backend/internal/delivery/http"
 	"github.com/fablelie/trello-clone-backend/internal/delivery/http/handler"
 	"github.com/fablelie/trello-clone-backend/internal/infrastructure/database"
-	"github.com/fablelie/trello-clone-backend/internal/repository"
+	postgresRepo "github.com/fablelie/trello-clone-backend/internal/repository/postgres"
 	"github.com/fablelie/trello-clone-backend/internal/usecase"
 	"github.com/gofiber/fiber/v3"
 	"github.com/joho/godotenv"
@@ -35,7 +35,7 @@ func main() {
 	)
 
 	// Assemble Repository (Data Layer)
-	userRepo := repository.NewUserRepository(db)
+	userRepo := postgresRepo.NewUserRepository(db)
 
 	// Assemble Usecase (Business Logic)
 	userUsecase := usecase.NewUserUsecase(userRepo, getEnv("JWT_SECRET", "secret_key"))

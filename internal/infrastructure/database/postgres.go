@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	my_postgres "github.com/fablelie/trello-clone-backend/internal/repository/postgres"
+	postgresRepo "github.com/fablelie/trello-clone-backend/internal/repository/postgres"
 )
 
 func NewPostgresDB(host, user, password, dbname, port string) *gorm.DB {
@@ -26,11 +26,11 @@ func NewPostgresDB(host, user, password, dbname, port string) *gorm.DB {
 	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
 
 	err = db.AutoMigrate(
-		&my_postgres.UserSchema{},
-		&my_postgres.ProjectSchema{},
-		&my_postgres.ColumnSchema{},
-		&my_postgres.ProjectMemberSchema{},
-		&my_postgres.TaskSchema{},
+		&postgresRepo.UserSchema{},
+		&postgresRepo.ProjectSchema{},
+		&postgresRepo.ColumnSchema{},
+		&postgresRepo.ProjectMemberSchema{},
+		&postgresRepo.TaskSchema{},
 	)
 
 	if err != nil {
