@@ -67,6 +67,6 @@ func (u *userUsecase) Login(email, password string) (string, error) {
 		"exp":     time.Now().Add(time.Hour * 72).Unix(), // Token หมดอายุใน 72 ชม.
 	})
 
-	// Sign the token with the secret key
+	// Generate encoded token
 	return token.SignedString([]byte(u.secret))
 }

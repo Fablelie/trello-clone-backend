@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"time"
+
 	"github.com/fablelie/trello-clone-backend/internal/domain"
 	"github.com/gofiber/fiber/v3"
 )
@@ -39,7 +41,6 @@ func (h *UserHandler) Register(c fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "user created successfully"})
 }
 
-// Login receives credentials and returns a JWT Token
 func (h *UserHandler) Login(c fiber.Ctx) error {
 	type request struct {
 		Email    string `json:"email"`
@@ -51,11 +52,19 @@ func (h *UserHandler) Login(c fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	// Validate credentials and get token from usecase
+	// Call usecase to get the token
 	token, err := h.UserUsecase.Login(req.Email, req.Password)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": token})
+	// Create and send cookie to the browser
+	c.Cookie(&fiber.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Expires:  time.Now().Add(time.Hour * 72),
+		HTTPOnly: true,
+	})
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "login success"})
 }
