@@ -34,18 +34,21 @@ func main() {
 		getEnv("DB_PORT", "mydatabase"),
 	)
 
-	// Assemble Repository (Data Layer)
+	jwtSecret := getEnv("JWT_SECRET", "secret_key")
+
+	// Assemble user module
 	userRepo := postgresRepo.NewUserRepository(db)
-
-	// Assemble Usecase (Business Logic)
-	userUsecase := usecase.NewUserUsecase(userRepo, getEnv("JWT_SECRET", "secret_key"))
-
-	// Assemble Handler (Delivery Layer)
+	userUsecase := usecase.NewUserUsecase(userRepo, jwtSecret)
 	userHandler := handler.NewUserHandler(userUsecase)
+
+	// Assemble project module
+	projectRepo := postgresRepo.NewProjectRepository(db)
+	projectUsecase := usecase.NewProjectUsecase(projectRepo)
+	projectHandler := handler.NewProjectHandler(projectUsecase)
 
 	// Initialize Fiber and setup Router
 	app := fiber.New()
-	http.SetupRouter(app, userHandler)
+	http.SetupRouter(app, userHandler, projectHandler, jwtSecret)
 
 	port := getEnv("PORT", "8080")
 
