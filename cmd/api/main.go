@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/fablelie/trello-clone-backend/internal/delivery/http"
 	"github.com/fablelie/trello-clone-backend/internal/delivery/http/handler"
@@ -28,10 +30,10 @@ func main() {
 
 	db := database.NewPostgresDB(
 		getEnv("DB_HOST", "localhost"),
-		getEnv("DB_USER", "5432"),
-		getEnv("DB_PASSWORD", "myuser"),
-		getEnv("DB_NAME", "mypassword"),
-		getEnv("DB_PORT", "mydatabase"),
+		getEnv("DB_USER", "myuser"),
+		getEnv("DB_PASSWORD", "mypassword"),
+		getEnv("DB_NAME", "mydatabase"),
+		getEnv("DB_PORT", "5432"),
 	)
 
 	jwtSecret := getEnv("JWT_SECRET", "secret_key")
@@ -46,12 +48,37 @@ func main() {
 	projectUsecase := usecase.NewProjectUsecase(projectRepo)
 	projectHandler := handler.NewProjectHandler(projectUsecase)
 
+	// Assemble task module
+	taskRepo := postgresRepo.NewTaskRepository(db)
+	taskUsecase := usecase.NewTaskUsecase(taskRepo, projectRepo)
+	taskHandler := handler.NewTaskHandler(taskUsecase)
+
 	// Initialize Fiber and setup Router
 	app := fiber.New()
-	http.SetupRouter(app, userHandler, projectHandler, jwtSecret)
+	http.SetupRouter(app, userHandler, projectHandler, taskHandler, jwtSecret)
 
-	port := getEnv("PORT", "8080")
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 
-	log.Printf("Server is running on port %s", port)
-	log.Fatal(app.Listen(":" + port))
+	go func() {
+		port := getEnv("PORT", "8080")
+		log.Printf("Server is starting on port %s", port)
+		if err := app.Listen(":" + port); err != nil {
+			log.Printf("Listen error: %v", err)
+		}
+	}()
+
+	<-c
+	log.Println("Gracefully shutting down...")
+
+	if err := app.Shutdown(); err != nil {
+		log.Printf("Fiber shutdown error: %v", err)
+	}
+
+	sqlDB, _ := db.DB()
+	if err := sqlDB.Close(); err != nil {
+		log.Printf("Database close error: %v", err)
+	}
+
+	log.Println("Server cleanup completed. Goodbye!")
 }

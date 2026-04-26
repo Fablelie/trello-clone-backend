@@ -54,17 +54,20 @@ func (ProjectMemberSchema) TableName() string { return "project_members" }
 
 // TaskSchema represents the "tasks" table
 type TaskSchema struct {
-	ID          uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	ProjectID   uuid.UUID `gorm:"type:uuid;not null;index"`
-	ColumnID    uuid.UUID `gorm:"type:uuid;not null"`
-	AssignerID  uuid.UUID `gorm:"type:uuid;not null"`
-	Subject     string    `gorm:"not null"`
-	Description string    `gorm:"type:text"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID         uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	ProjectID  uuid.UUID `gorm:"type:uuid;not null;index"`
+	ColumnID   uuid.UUID `gorm:"type:uuid;not null"`
+	AssignerID uuid.UUID `gorm:"type:uuid;not null"`
 
+	Assigner UserSchema   `gorm:"foreignKey:AssignerID"`
+	Column   ColumnSchema `gorm:"foreignKey:ColumnID"`
 	// Many-to-many relationship using a junction table "task_members"
 	Members []UserSchema `gorm:"many2many:task_members;constraint:OnDelete:CASCADE"`
+
+	Subject     string `gorm:"not null"`
+	Description string `gorm:"type:text"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (TaskSchema) TableName() string { return "tasks" }

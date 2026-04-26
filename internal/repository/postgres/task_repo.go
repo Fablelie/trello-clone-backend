@@ -1,0 +1,141 @@
+package postgres
+
+import (
+	"github.com/fablelie/trello-clone-backend/internal/domain"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
+type taskRepo struct {
+	db *gorm.DB
+}
+
+// NewTaskRepository creates a new instance for task data management
+func NewTaskRepository(db *gorm.DB) domain.TaskRepository {
+	return &taskRepo{db: db}
+}
+
+// Create persists a new task to the database
+func (r *taskRepo) Create(task *domain.Task) error {
+	// Mapping Domain to Schema (Using ID from TaskSchema as TaskID)
+	schema := TaskSchema{
+		ID:          task.TaskID,
+		ProjectID:   task.ProjectID,
+		ColumnID:    task.Column.ColumnID,
+		AssignerID:  task.Assigner.ID,
+		Subject:     task.Subject,
+		Description: task.Description,
+	}
+
+	if err := r.db.Create(&schema).Error; err != nil {
+		return err
+	}
+
+	task.TaskID = schema.ID
+	task.CreatedAt = schema.CreatedAt
+	return nil
+}
+
+// Update handles editing task content
+func (r *taskRepo) Update(task *domain.Task) error {
+	return r.db.Model(&TaskSchema{}).Where("id = ?", task.TaskID).Updates(map[string]interface{}{
+		"subject":     task.Subject,
+		"description": task.Description,
+		"column_id":   task.Column.ColumnID, // Used for MoveTask as well
+		"updated_at":  gorm.Expr("NOW()"),
+	}).Error
+}
+
+// Delete removes a task by ID
+func (r *taskRepo) Delete(id uuid.UUID) error {
+	return r.db.Delete(&TaskSchema{}, "id = ?", id).Error
+}
+
+// GetByID checks if task exists and returns basic info
+func (r *taskRepo) GetByID(id uuid.UUID) (*domain.Task, error) {
+	var s TaskSchema
+
+	// Use Preload to fetch Assigner data to verify if they are the task creator
+	if err := r.db.Preload("Assigner").Preload("Column").Preload("Members").First(&s, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+
+	task := &domain.Task{
+		TaskID:      s.ID,
+		ProjectID:   s.ProjectID,
+		Subject:     s.Subject,
+		Description: s.Description,
+		CreatedAt:   s.CreatedAt,
+		UpdatedAt:   s.UpdatedAt,
+		Assigner: &domain.User{
+			ID:   s.Assigner.ID,
+			Name: s.Assigner.Name,
+		},
+		Column: &domain.Column{
+			ColumnID: s.Column.ID,
+			Name:     s.Column.Name,
+			Color:    s.Column.Color,
+		},
+	}
+	// Map Many-to-Many Members
+	for _, m := range s.Members {
+		task.Members = append(task.Members, domain.User{
+			ID:   m.ID,
+			Name: m.Name,
+		})
+	}
+	// Mapping data from TaskSchema back to Domain.Task
+	return task, nil
+}
+
+// GetByProjectID fetches all tasks in a project with Assigner, Column, and Members
+func (r *taskRepo) GetByProjectID(projectID uuid.UUID) ([]domain.Task, error) {
+	var schemas []TaskSchema
+	err := r.db.Preload("Assigner").Preload("Column").Preload("Members").Where("project_id = ?", projectID).Find(&schemas).Error
+	if err != nil {
+		return nil, err
+	}
+
+	var tasks []domain.Task
+	for _, s := range schemas {
+		task := domain.Task{
+			TaskID:      s.ID,
+			ProjectID:   s.ProjectID,
+			Subject:     s.Subject,
+			Description: s.Description,
+			CreatedAt:   s.CreatedAt,
+			UpdatedAt:   s.UpdatedAt,
+			Assigner: &domain.User{
+				ID:    s.Assigner.ID,
+				Name:  s.Assigner.Name,
+				Email: s.Assigner.Email,
+			},
+			Column: &domain.Column{
+				ColumnID: s.Column.ID,
+				Name:     s.Column.Name,
+				Color:    s.Column.Color,
+			},
+		}
+
+		// Map Many-to-Many Members
+		for _, m := range s.Members {
+			task.Members = append(task.Members, domain.User{
+				ID:   m.ID,
+				Name: m.Name,
+			})
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
+}
+
+// AddMember adds a user to a task (Many-to-Many)
+func (r *taskRepo) AddMember(taskID uuid.UUID, userID uuid.UUID) error {
+	// GORM will automatically handle the junction table (task_members)
+	return r.db.Model(&TaskSchema{ID: taskID}).Association("Members").Append(&UserSchema{ID: userID})
+}
+
+// RemoveMember removes a user from a task
+func (r *taskRepo) RemoveMember(taskID uuid.UUID, userID uuid.UUID) error {
+	return r.db.Model(&TaskSchema{ID: taskID}).Association("Members").Delete(&UserSchema{ID: userID})
+}

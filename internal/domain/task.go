@@ -23,7 +23,7 @@ type TaskRepository interface {
 	Create(task *Task) error
 	Update(task *Task) error
 	Delete(id uuid.UUID) error
-	GetByID(id uuid.UUID) error
+	GetByID(id uuid.UUID) (*Task, error)
 	GetByProjectID(projectID uuid.UUID) ([]Task, error)
 
 	// For manage relationship Many-to-Many of members.

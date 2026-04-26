@@ -7,7 +7,7 @@ import (
 )
 
 // SetupRouter manages all API routes
-func SetupRouter(app *fiber.App, userHandler *handler.UserHandler, projectHandler *handler.ProjectHandler, secret string) {
+func SetupRouter(app *fiber.App, userHandler *handler.UserHandler, projectHandler *handler.ProjectHandler, taskHandler *handler.TaskHandler, secret string) {
 	// Create a group for API api
 	api := app.Group("/api/v1")
 
@@ -18,7 +18,15 @@ func SetupRouter(app *fiber.App, userHandler *handler.UserHandler, projectHandle
 
 	protected := api.Group("/", middleware.AuthMiddleware(secret), middleware.UserContextMiddleware())
 
+	// project
 	projects := protected.Group("/projects")
 	projects.Post("/", projectHandler.Create)
 	projects.Post("/members", projectHandler.AddMember)
+
+	// task
+	tasks := protected.Group("/tasks")
+	tasks.Post("/", taskHandler.Create)
+	tasks.Patch("/:id/move", taskHandler.MoveTask)
+	tasks.Post("/:id/assign", taskHandler.AssignMember)
+	tasks.Delete("/:id", taskHandler.DeleteTask)
 }
