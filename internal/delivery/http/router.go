@@ -16,7 +16,7 @@ func SetupRouter(app *fiber.App, userHandler *handler.UserHandler, projectHandle
 	auth.Post("/register", userHandler.Register)
 	auth.Post("/login", userHandler.Login)
 
-	protected := api.Group("/", middleware.AuthMiddleware(secret), middleware.UserContextMiddleware())
+	protected := api.Group("", middleware.AuthMiddleware(secret), middleware.UserContextMiddleware())
 
 	// project
 	projects := protected.Group("/projects")

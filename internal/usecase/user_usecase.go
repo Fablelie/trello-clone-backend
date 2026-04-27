@@ -63,7 +63,7 @@ func (u *userUsecase) Login(email, password string) (string, error) {
 
 	// Create a JWT Token for authentication
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": user.ID,
+		"user_id": user.ID.String(),
 		"exp":     time.Now().Add(time.Hour * 72).Unix(), // Token หมดอายุใน 72 ชม.
 	})
 
