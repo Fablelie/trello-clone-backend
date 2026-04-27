@@ -45,7 +45,7 @@ func main() {
 
 	// Assemble project module
 	projectRepo := postgresRepo.NewProjectRepository(db)
-	projectUsecase := usecase.NewProjectUsecase(projectRepo)
+	projectUsecase := usecase.NewProjectUsecase(projectRepo, userRepo)
 	projectHandler := handler.NewProjectHandler(projectUsecase)
 
 	// Assemble task module

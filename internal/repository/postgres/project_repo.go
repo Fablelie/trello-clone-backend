@@ -138,14 +138,18 @@ func (r *projectRepo) DeleteColumn(id uuid.UUID) error {
 
 // --- Member Management ---
 
-func (r *projectRepo) AddMember(member *domain.ProjectMember) error {
-	schema := ProjectMemberSchema{
-		ProjectID: member.ProjectID,
-		UserID:    member.UserID,
-		Role:      member.Role,
-		Position:  member.Position,
+func (r *projectRepo) AddMembers(members []domain.ProjectMember) error {
+	var schemas []ProjectMemberSchema
+
+	for _, m := range members {
+		schemas = append(schemas, ProjectMemberSchema{
+			ProjectID: m.ProjectID,
+			UserID:    m.UserID,
+			Role:      m.Role,
+			Position:  m.Position,
+		})
 	}
-	return r.db.Create(&schema).Error
+	return r.db.Create(&schemas).Error
 }
 
 func (r *projectRepo) GetMember(projectID uuid.UUID, userID uuid.UUID) (*domain.ProjectMember, error) {

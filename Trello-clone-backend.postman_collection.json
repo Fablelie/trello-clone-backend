@@ -102,6 +102,42 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "AddMemberToProject",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n  {\r\n    \"email\": \"pm@example.com\",\r\n    \"role\": \"Admin\",\r\n    \"position\": \"Project Manager\"\r\n  },\r\n  {\r\n    \"email\": \"frontend@example.com\",\r\n    \"role\": \"Member\",\r\n    \"position\": \"Frontend Developer\"\r\n  }\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/projects/:id/members",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "projects",
+                ":id",
+                "members"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "02a6f903-bd5b-4aba-945a-7a7ea5765c47"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }

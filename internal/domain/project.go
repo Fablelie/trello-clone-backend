@@ -23,6 +23,12 @@ type ProjectMember struct {
 	Position  string    `json:"position"`
 }
 
+type AddMemberRequest struct {
+	Email    string `json:"email"`
+	Role     string `json:"role"`
+	Position string `json:"position"`
+}
+
 // Column is status of Task in Project like (Todo, Doing, Done)
 type Column struct {
 	ColumnID  uuid.UUID `json:"column_id"`
@@ -43,7 +49,7 @@ type ProjectRepository interface {
 	DeleteColumn(id uuid.UUID) error
 
 	// For manage Members.
-	AddMember(member *ProjectMember) error
+	AddMembers(members []ProjectMember) error
 	GetMember(projectID uuid.UUID, userID uuid.UUID) (*ProjectMember, error)
 	UpdateMember(member *ProjectMember) error
 	RemoveMember(projectID, userID uuid.UUID) error
@@ -54,6 +60,7 @@ type ProjectUsecase interface {
 
 	// Requie actorID to check role.
 	UpdateColumn(actorID uuid.UUID, column *Column) error
-	AddMember(actorID uuid.UUID, member *ProjectMember) error
+	// AddMember(actorID uuid.UUID, member *ProjectMember) error
+	AddMembers(actorID uuid.UUID, projectID uuid.UUID, members []AddMemberRequest) error
 	RemoveMember(actorID uuid.UUID, projectID uuid.UUID, userID uuid.UUID) error
 }

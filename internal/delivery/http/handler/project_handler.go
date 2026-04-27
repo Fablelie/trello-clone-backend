@@ -44,16 +44,21 @@ func (h *ProjectHandler) Create(c fiber.Ctx) error {
 }
 
 // AddMember handles adding a new member to the project
-func (h *ProjectHandler) AddMember(c fiber.Ctx) error {
+func (h *ProjectHandler) AddMembers(c fiber.Ctx) error {
 	actorID := c.Locals("actor_id").(uuid.UUID)
 
-	var req domain.ProjectMember
+	projectID, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid project id"})
+	}
+
+	var req []domain.AddMemberRequest
 	if err := c.Bind().Body(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid request body"})
 	}
 
 	// Usecase will verify if the actorID has Admin role for this project
-	err := h.projectUsecase.AddMember(actorID, &req)
+	err = h.projectUsecase.AddMembers(actorID, projectID, req)
 	if err != nil {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"message": err.Error()})
 	}
