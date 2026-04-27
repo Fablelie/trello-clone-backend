@@ -103,3 +103,18 @@ func (u *projectUsecase) RemoveMember(actorID uuid.UUID, projectID uuid.UUID, us
 
 	return u.projectRepo.RemoveMember(projectID, userID)
 }
+
+// GetMyProjects get all projects the user is a member of
+func (u *projectUsecase) GetMyProjects(actorID uuid.UUID) ([]domain.Project, error) {
+	return u.projectRepo.GetByUserID(actorID)
+}
+
+// GetProjectByID get project board details(members only)
+func (u *projectUsecase) GetProjectByID(actorID uuid.UUID, projectID uuid.UUID) (*domain.Project, error) {
+	member, err := u.projectRepo.GetMember(projectID, actorID)
+	if err != nil || member == nil {
+		return nil, errors.New("permission denied: you are not a member of this project")
+	}
+
+	return u.projectRepo.GetByID(projectID)
+}

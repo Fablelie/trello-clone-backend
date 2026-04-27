@@ -43,6 +43,34 @@ func (h *ProjectHandler) Create(c fiber.Ctx) error {
 	})
 }
 
+// GetAll projects for the logged-in user
+func (h *ProjectHandler) GetAll(c fiber.Ctx) error {
+	actorID := c.Locals("actor_id").(uuid.UUID)
+
+	projects, err := h.projectUsecase.GetMyProjects(actorID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(projects)
+}
+
+// GetByID get project details by ID from the URL
+func (h *ProjectHandler) GetByID(c fiber.Ctx) error {
+	actorID := c.Locals("actor_id").(uuid.UUID)
+	projectID, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid project id"})
+	}
+
+	project, err := h.projectUsecase.GetProjectByID(actorID, projectID)
+	if err != nil {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(project)
+}
+
 // AddMember handles adding a new member to the project
 func (h *ProjectHandler) AddMembers(c fiber.Ctx) error {
 	actorID := c.Locals("actor_id").(uuid.UUID)

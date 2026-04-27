@@ -20,6 +20,8 @@ func SetupRouter(app *fiber.App, userHandler *handler.UserHandler, projectHandle
 
 	// project
 	projects := protected.Group("/projects")
+	projects.Get("/", projectHandler.GetAll)
+	projects.Get("/:id", projectHandler.GetByID)
 	projects.Post("/", projectHandler.Create)
 	projects.Post("/:id/members", projectHandler.AddMembers)
 

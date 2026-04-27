@@ -138,6 +138,22 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "GetAllProjects",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "GetProjectByID",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
         }
       ]
     }

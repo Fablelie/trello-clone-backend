@@ -60,7 +60,9 @@ type ProjectUsecase interface {
 
 	// Requie actorID to check role.
 	UpdateColumn(actorID uuid.UUID, column *Column) error
-	// AddMember(actorID uuid.UUID, member *ProjectMember) error
 	AddMembers(actorID uuid.UUID, projectID uuid.UUID, members []AddMemberRequest) error
 	RemoveMember(actorID uuid.UUID, projectID uuid.UUID, userID uuid.UUID) error
+
+	GetMyProjects(actorID uuid.UUID) ([]Project, error)
+	GetProjectByID(actorID uuid.UUID, projectID uuid.UUID) (*Project, error)
 }
