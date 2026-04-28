@@ -21,14 +21,20 @@ func NewTaskHandler(u domain.TaskUsecase) *TaskHandler {
 func (h *TaskHandler) Create(c fiber.Ctx) error {
 	actorID := c.Locals("actor_id").(uuid.UUID)
 
+	projectID, err := uuid.Parse(c.Params("project_id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid project id"})
+	}
+
 	var req domain.Task
 	if err := c.Bind().Body(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid request body"})
 	}
 
+	req.ProjectID = projectID
+
 	// Call Usecase (membership check is handled inside)
-	err := h.taskUsecase.CreateTask(actorID, &req)
-	if err != nil {
+	if err := h.taskUsecase.CreateTask(actorID, &req); err != nil {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"message": err.Error()})
 	}
 
@@ -55,6 +61,25 @@ func (h *TaskHandler) MoveTask(c fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "task moved successfully"})
+}
+
+// UpdateTask handles updating the task supject, description, column (status)
+func (h *TaskHandler) UpdateTask(c fiber.Ctx) error {
+	actorID := c.Locals("actor_id").(uuid.UUID)
+	taskID, _ := uuid.Parse(c.Params("id"))
+
+	var req domain.Task
+	if err := c.Bind().Body(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid request body"})
+	}
+
+	req.TaskID = taskID
+
+	if err := h.taskUsecase.UpdateTask(actorID, &req); err != nil {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "task updated successfuly"})
 }
 
 // AssignMember handles assigning a user to a task
@@ -86,4 +111,19 @@ func (h *TaskHandler) DeleteTask(c fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "task deleted"})
+}
+
+func (h *TaskHandler) GetByProjectID(c fiber.Ctx) error {
+	actorID := c.Locals("actor_id").(uuid.UUID)
+	projectID, err := uuid.Parse(c.Params("project_id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid project id"})
+	}
+
+	tasks, err := h.taskUsecase.GetTasksByProject(actorID, projectID)
+	if err != nil {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(tasks)
 }

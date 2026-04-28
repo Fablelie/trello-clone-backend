@@ -38,12 +38,27 @@ func (r *taskRepo) Create(task *domain.Task) error {
 
 // Update handles editing task content
 func (r *taskRepo) Update(task *domain.Task) error {
-	return r.db.Model(&TaskSchema{}).Where("id = ?", task.TaskID).Updates(map[string]interface{}{
-		"subject":     task.Subject,
-		"description": task.Description,
-		"column_id":   task.Column.ColumnID, // Used for MoveTask as well
-		"updated_at":  gorm.Expr("NOW()"),
-	}).Error
+	updates := make(map[string]interface{})
+
+	if task.Subject != "" {
+		updates["subject"] = task.Subject
+	}
+
+	if task.Description != "" {
+		updates["description"] = task.Description
+	}
+
+	if task.Column != nil && task.Column.ColumnID != uuid.Nil {
+		updates["column_id"] = task.Column.ColumnID
+	}
+
+	if len(updates) == 0 {
+		return nil
+	}
+
+	updates["updated_at"] = gorm.Expr("NOW()")
+
+	return r.db.Model(&TaskSchema{}).Where("id = ?", task.TaskID).Updates(updates).Error
 }
 
 // Delete removes a task by ID

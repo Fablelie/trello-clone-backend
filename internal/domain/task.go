@@ -40,4 +40,6 @@ type TaskUsecase interface {
 	MoveTask(actorID uuid.UUID, taskID uuid.UUID, targetColumnID uuid.UUID) error
 
 	AssignMember(actorID uuid.UUID, taskID uuid.UUID, targetUserID uuid.UUID)
+
+	GetTasksByProject(actorID uuid.UUID, projectID uuid.UUID) ([]Task, error)
 }

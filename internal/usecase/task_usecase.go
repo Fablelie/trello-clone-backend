@@ -46,6 +46,10 @@ func (u *taskUsecase) CreateTask(actorID uuid.UUID, task *domain.Task) error {
 		return errors.New("permission denied: you must be a member to create a task")
 	}
 
+	if task.Column == nil {
+		return errors.New("column_id is required")
+	}
+
 	task.TaskID = uuid.New()
 	task.Assigner = &domain.User{ID: actorID}
 	return u.taskRepo.Create(task)
@@ -104,4 +108,16 @@ func (u *taskUsecase) AssignMember(actorID uuid.UUID, taskID uuid.UUID, targetUs
 	if _, err := u.checkPermission(actorID, existingTask.ProjectID, existingTask.Assigner.ID); err == nil {
 		u.taskRepo.AddMember(taskID, targetUserID)
 	}
+}
+
+// GetTasksByProject get all tasks in project (only project member)
+func (u *taskUsecase) GetTasksByProject(actorID uuid.UUID, projectID uuid.UUID) ([]domain.Task, error) {
+	// Check permission
+	_, err := u.projectRepo.GetMember(projectID, actorID)
+	if err != nil {
+		return nil, errors.New("permission denied: you are not a member of this project")
+	}
+
+	// get all tasks from repo
+	return u.taskRepo.GetByProjectID(projectID)
 }
