@@ -156,6 +156,105 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "GetAllTasksByProjectID",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "CreateTask",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"subject\": \"First Task\",\r\n    \"description\": \"Description\",\r\n    \"column_id\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/projects/:project_id/taks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "projects",
+                ":project_id",
+                "taks"
+              ],
+              "variable": [
+                {
+                  "key": "project_id",
+                  "value": "02a6f903-bd5b-4aba-945a-7a7ea5765c47"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MoveTask",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"target_column_id\": \"858aa177-8251-4f4f-9e6c-6fcfb343bd2f\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/projects/:project_id/tasks/:id/move",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "projects",
+                ":project_id",
+                "tasks",
+                ":id",
+                "move"
+              ],
+              "variable": [
+                {
+                  "key": "project_id",
+                  "value": "02a6f903-bd5b-4aba-945a-7a7ea5765c47"
+                },
+                {
+                  "key": "id",
+                  "value": "525281c8-5def-4acb-9266-3f09c07c31c1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UpdateTask",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
