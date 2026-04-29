@@ -253,6 +253,64 @@
             "header": []
           },
           "response": []
+        },
+        {
+          "name": "AssignMember",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"user_id\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/projects/:project_id/tasks/:id/assign",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "projects",
+                ":project_id",
+                "tasks",
+                ":id",
+                "assign"
+              ],
+              "variable": [
+                {
+                  "key": "project_id",
+                  "value": "02a6f903-bd5b-4aba-945a-7a7ea5765c47"
+                },
+                {
+                  "key": "id",
+                  "value": "525281c8-5def-4acb-9266-3f09c07c31c1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "RemoveMember",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "DeleteTask",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
         }
       ]
     }
