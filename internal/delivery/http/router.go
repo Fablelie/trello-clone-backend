@@ -31,6 +31,7 @@ func SetupRouter(app *fiber.App, userHandler *handler.UserHandler, projectHandle
 	tasks.Get("/", taskHandler.GetByProjectID)
 	tasks.Patch("/:id", taskHandler.UpdateTask)
 	tasks.Patch("/:id/move", taskHandler.MoveTask)
-	tasks.Post("/:id/assign", taskHandler.AssignMember)
+	tasks.Post("/:id/assign", taskHandler.AssignMembers)
+	tasks.Delete("/:id/remove", taskHandler.RemoveMember)
 	tasks.Delete("/:id", taskHandler.DeleteTask)
 }

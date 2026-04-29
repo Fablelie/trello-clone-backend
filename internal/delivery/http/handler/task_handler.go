@@ -82,22 +82,46 @@ func (h *TaskHandler) UpdateTask(c fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "task updated successfuly"})
 }
 
-// AssignMember handles assigning a user to a task
-func (h *TaskHandler) AssignMember(c fiber.Ctx) error {
+// AssignMembers handles assigning a users to a task
+func (h *TaskHandler) AssignMembers(c fiber.Ctx) error {
 	actorID := c.Locals("actor_id").(uuid.UUID)
 	taskID, _ := uuid.Parse(c.Params("id"))
 
 	type request struct {
-		UserID uuid.UUID `json:"user_id"`
+		Emails []string `json:"emails"`
 	}
 	var req request
 	if err := c.Bind().Body(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid request body"})
 	}
 
-	h.taskUsecase.AssignMember(actorID, taskID, req.UserID)
+	err := h.taskUsecase.AssignMembers(actorID, taskID, req.Emails)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "member assigned"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "members assigned successfully"})
+}
+
+// RemoveMember handles remove a user from a task
+func (h *TaskHandler) RemoveMember(c fiber.Ctx) error {
+	actorID := c.Locals("actor_id").(uuid.UUID)
+	taskID, _ := uuid.Parse(c.Params("id"))
+
+	type request struct {
+		Email string `json:"email"`
+	}
+	var req request
+	if err := c.Bind().Body(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "invalid request body"})
+	}
+
+	err := h.taskUsecase.RemoveMember(actorID, taskID, req.Email)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "member remover successfully"})
 }
 
 // DeleteTask handles task removal

@@ -44,8 +44,8 @@ func (ColumnSchema) TableName() string { return "columns" }
 
 // ProjectMemberSchema is an association table between Users and Projects with extra fields
 type ProjectMemberSchema struct {
-	ProjectID uuid.UUID `gorm:"type:uuid;primaryKey"`
-	UserID    uuid.UUID `gorm:"type:uuid;primaryKey"`
+	ProjectID uuid.UUID `gorm:"type:uuid;primaryKey;constraint:OnDelete:CASCADE;references:id"`
+	UserID    uuid.UUID `gorm:"type:uuid;primaryKey;constraint:OnDelete:CASCADE;references:id"`
 	Role      string    `gorm:"not null"`
 	Position  string    `gorm:"not null"`
 }

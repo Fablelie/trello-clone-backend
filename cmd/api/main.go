@@ -50,7 +50,7 @@ func main() {
 
 	// Assemble task module
 	taskRepo := postgresRepo.NewTaskRepository(db)
-	taskUsecase := usecase.NewTaskUsecase(taskRepo, projectRepo)
+	taskUsecase := usecase.NewTaskUsecase(taskRepo, projectRepo, userRepo)
 	taskHandler := handler.NewTaskHandler(taskUsecase)
 
 	// Initialize Fiber and setup Router

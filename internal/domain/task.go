@@ -26,8 +26,9 @@ type TaskRepository interface {
 	GetByID(id uuid.UUID) (*Task, error)
 	GetByProjectID(projectID uuid.UUID) ([]Task, error)
 
+	IsMember(taskID uuid.UUID, userID uuid.UUID) (bool, error)
 	// For manage relationship Many-to-Many of members.
-	AddMember(taskID uuid.UUID, userID uuid.UUID) error
+	AddMembers(taskID uuid.UUID, userIDs []uuid.UUID) error
 	RemoveMember(taskID uuid.UUID, userID uuid.UUID) error
 }
 
@@ -39,7 +40,10 @@ type TaskUsecase interface {
 	// For update Task status.
 	MoveTask(actorID uuid.UUID, taskID uuid.UUID, targetColumnID uuid.UUID) error
 
-	AssignMember(actorID uuid.UUID, taskID uuid.UUID, targetUserID uuid.UUID)
+	CheckUserInTask(taskID uuid.UUID, userID uuid.UUID) (bool, error)
+
+	AssignMembers(actorID uuid.UUID, taskID uuid.UUID, emails []string) error
+	RemoveMember(actorID uuid.UUID, taskID uuid.UUID, email string) error
 
 	GetTasksByProject(actorID uuid.UUID, projectID uuid.UUID) ([]Task, error)
 }

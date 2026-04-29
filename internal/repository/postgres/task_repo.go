@@ -144,13 +144,36 @@ func (r *taskRepo) GetByProjectID(projectID uuid.UUID) ([]domain.Task, error) {
 	return tasks, nil
 }
 
-// AddMember adds a user to a task (Many-to-Many)
-func (r *taskRepo) AddMember(taskID uuid.UUID, userID uuid.UUID) error {
-	// GORM will automatically handle the junction table (task_members)
-	return r.db.Model(&TaskSchema{ID: taskID}).Association("Members").Append(&UserSchema{ID: userID})
+func (r *taskRepo) IsMember(taskID uuid.UUID, userID uuid.UUID) (bool, error) {
+	var count int64
+	err := r.db.Table("task_members").
+		Where("task_schema_id = ? AND user_schema_id = ?", taskID, userID).
+		Count(&count).Error
+
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
+// AddMembers adds multiple users to a task (Many-to-Many)
+func (r *taskRepo) AddMembers(taskID uuid.UUID, userIDs []uuid.UUID) error {
+	for _, userID := range userIDs {
+		if err := r.db.Exec(
+			"INSERT INTO task_members (task_schema_id, user_schema_id) VALUES ($1, $2)",
+			taskID, userID,
+		).Error; err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // RemoveMember removes a user from a task
 func (r *taskRepo) RemoveMember(taskID uuid.UUID, userID uuid.UUID) error {
-	return r.db.Model(&TaskSchema{ID: taskID}).Association("Members").Delete(&UserSchema{ID: userID})
+	return r.db.Exec(
+		"DELETE FROM task_members WHERE task_schema_id = $1 AND user_schema_id = $2",
+		taskID, userID,
+	).Error
 }

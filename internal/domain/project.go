@@ -18,7 +18,7 @@ type Project struct {
 // ProjectMember is middle table to stroage members in project.
 type ProjectMember struct {
 	ProjectID uuid.UUID `json:"project_id"`
-	UserID    uuid.UUID `josn:"user_id"`
+	UserID    uuid.UUID `json:"user_id"`
 	Role      string    `json:"role"`
 	Position  string    `json:"position"`
 }
