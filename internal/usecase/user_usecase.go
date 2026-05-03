@@ -28,7 +28,7 @@ func (u *userUsecase) Register(email, password, name string) error {
 	// Check if the email already exists in the system
 	existingUser, _ := u.userRepo.GetByEmail(email)
 	if existingUser != nil {
-		return errors.New("user already exists with this email")
+		return errors.New("email already exists")
 	}
 
 	// Hash the password before saving to the database

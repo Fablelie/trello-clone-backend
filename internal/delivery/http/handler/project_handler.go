@@ -91,5 +91,5 @@ func (h *ProjectHandler) AddMembers(c fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "member added successfully"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "members added successfully"})
 }

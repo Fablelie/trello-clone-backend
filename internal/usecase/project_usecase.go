@@ -69,7 +69,7 @@ func (u *projectUsecase) AddMembers(actorID uuid.UUID, projectID uuid.UUID, memb
 	}
 
 	if len(newMembers) == 0 {
-		return errors.New("newMember length == 0")
+		return errors.New("user not found")
 	}
 
 	// If Admin, proceed to add the member

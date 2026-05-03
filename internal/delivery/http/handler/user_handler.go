@@ -38,7 +38,7 @@ func (h *UserHandler) Register(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "user created successfully"})
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "user registered successfully"})
 }
 
 func (h *UserHandler) Login(c fiber.Ctx) error {

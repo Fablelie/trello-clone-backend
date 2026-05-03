@@ -29,8 +29,14 @@ func UserContextMiddleware() fiber.Handler {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "user_id not found in token"})
 		}
 
-		// เก็บ ID ที่เป็น UUID ไว้ให้เลย
-		c.Locals("actor_id", uuid.MustParse(userIdStr))
+		actorID, err := uuid.Parse(userIdStr)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"message": "invalid uuid format in token",
+			})
+		}
+
+		c.Locals("actor_id", actorID)
 		return c.Next()
 	}
 }
